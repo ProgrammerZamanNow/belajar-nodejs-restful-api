@@ -147,7 +147,7 @@ describe('GET /api/users/current', function () {
         await removeTestUser();
     });
 
-    it('should can get current user', async ()=> {
+    it('should can get current user', async () => {
         const result = await supertest(web)
             .get('/api/users/current')
             .set('Authorization', 'test');
@@ -157,7 +157,7 @@ describe('GET /api/users/current', function () {
         expect(result.body.data.name).toBe('test');
     });
 
-    it('should reject if token is invalid', async ()=> {
+    it('should reject if token is invalid', async () => {
         const result = await supertest(web)
             .get('/api/users/current')
             .set('Authorization', 'salah');
@@ -176,7 +176,7 @@ describe('PATCH /api/users/current', function () {
         await removeTestUser();
     });
 
-    it('should can update user', async ()=> {
+    it('should can update user', async () => {
         const result = await supertest(web)
             .patch("/api/users/current")
             .set("Authorization", "test")
@@ -193,7 +193,7 @@ describe('PATCH /api/users/current', function () {
         expect(await bcrypt.compare("rahasialagi", user.password)).toBe(true);
     });
 
-    it('should can update user name', async ()=> {
+    it('should can update user name', async () => {
         const result = await supertest(web)
             .patch("/api/users/current")
             .set("Authorization", "test")
@@ -206,7 +206,7 @@ describe('PATCH /api/users/current', function () {
         expect(result.body.data.name).toBe("Eko");
     });
 
-    it('should can update user password', async ()=> {
+    it('should can update user password', async () => {
         const result = await supertest(web)
             .patch("/api/users/current")
             .set("Authorization", "test")
@@ -222,11 +222,41 @@ describe('PATCH /api/users/current', function () {
         expect(await bcrypt.compare("rahasialagi", user.password)).toBe(true);
     });
 
-    it('should reject if request is not valid', async ()=> {
+    it('should reject if request is not valid', async () => {
         const result = await supertest(web)
             .patch("/api/users/current")
             .set("Authorization", "salah")
             .send({});
+
+        expect(result.status).toBe(401);
+    });
+});
+
+describe('DELETE /api/users/logout', function () {
+    beforeEach(async () => {
+        await createTestUser();
+    });
+
+    afterEach(async () => {
+        await removeTestUser();
+    });
+
+    it('should can logout', async () => {
+        const result = await supertest(web)
+            .delete('/api/users/logout')
+            .set('Authorization', 'test');
+
+        expect(result.status).toBe(200);
+        expect(result.body.data).toBe("OK");
+
+        const user = await getTestUser();
+        expect(user.token).toBeNull();
+    });
+
+    it('should reject logout if token is invalid', async () => {
+        const result = await supertest(web)
+            .delete('/api/users/logout')
+            .set('Authorization', 'salah');
 
         expect(result.status).toBe(401);
     });
