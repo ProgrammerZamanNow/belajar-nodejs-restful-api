@@ -274,3 +274,38 @@ describe('DELETE /api/contacts/:contactId/addresses/:addressId', function () {
         expect(result.status).toBe(404);
     });
 });
+
+describe('GET /api/contacts/:contactId/addresses', function () {
+    beforeEach(async () => {
+        await createTestUser();
+        await createTestContact();
+        await createTestAddress();
+    })
+
+    afterEach(async () => {
+        await removeAllTestAddresses();
+        await removeAllTestContacts();
+        await removeTestUser();
+    })
+
+    it('should can list addresses', async function () {
+        const testContact = await getTestContact();
+
+        const result = await supertest(web)
+            .get('/api/contacts/' + testContact.id + "/addresses")
+            .set('Authorization', 'test');
+
+        expect(result.status).toBe(200);
+        expect(result.body.data.length).toBe(1);
+    });
+
+    it('should reject if contact is not found', async function () {
+        const testContact = await getTestContact();
+
+        const result = await supertest(web)
+            .get('/api/contacts/' + (testContact.id + 1) + "/addresses")
+            .set('Authorization', 'test');
+
+        expect(result.status).toBe(404);
+    });
+});
